@@ -27,13 +27,15 @@ const token = () => randomBytes(32).toString('hex');
 const digest = value => createHash('sha256').update(value).digest('hex');
 const port = Number(process.env.PORT || 18743);
 const origin = new URL(process.env.PORTAL_ORIGIN || 'http://127.0.0.1:' + port).origin;
+const frontend = new URL(process.env.PORTAL_FRONTEND_URL || origin + '/');
+if (!frontend.pathname.endsWith('/')) frontend.pathname += '/';
 if (process.argv[2] === 'invite') {
   const [, , , unit, role] = process.argv;
   if (!unit?.trim() || !['employee','manager'].includes(role)) throw Error('invite <department> employee|manager');
   db.prepare('INSERT OR IGNORE INTO departments(name) VALUES (?)').run(unit);
   const secret = token();
   db.prepare('INSERT INTO invitations VALUES (?,(SELECT id FROM departments WHERE name=?),?,?)').run(digest(secret),unit,role,Date.now()+86400000);
-  console.log(origin+'/desk.html#invite='+secret);
+  console.log(new URL('desk.html',frontend).href+'#invite='+secret);
   process.exit(0);
 }
 const derive = promisify(scrypt);
@@ -51,6 +53,14 @@ const server = http.createServer(async (req,res) => {
     res.setHeader('X-Content-Type-Options','nosniff');
     res.setHeader('Referrer-Policy','no-referrer');
     res.setHeader('X-Frame-Options','DENY');
+    const pagesRequest = route.startsWith('/api/') && req.headers.origin === frontend.origin && frontend.origin !== origin;
+    if (pagesRequest) {
+      res.setHeader('Vary','Origin');
+      res.setHeader('Access-Control-Allow-Origin',frontend.origin);
+      res.setHeader('Access-Control-Allow-Headers','Content-Type, Authorization');
+      res.setHeader('Access-Control-Allow-Methods','GET, POST, OPTIONS');
+      if (req.method==='OPTIONS') {res.writeHead(204);return res.end();}
+    }
     if (!route.startsWith('/api/')) {
       if(req.method!=='GET' || !/^\/(?:[a-z0-9-]+\.(?:html|css|js)|acts\/\d+\.html)?$/.test(route)) return send(404,{});
       const file = path.join(web, route==='/'?'index.html':route.slice(1));
@@ -58,12 +68,13 @@ const server = http.createServer(async (req,res) => {
       res.setHeader('Content-Type',({'.html':'text/html','.css':'text/css','.js':'text/javascript'})[path.extname(file)]+'; charset=utf-8');
       return res.end(content);
     }
-    const session = digest(/(?:^|; *)vp_session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie||'')?.[1] || '');
+    const bearer=/^Bearer ([a-f0-9]{64})$/.exec(req.headers.authorization||'')?.[1];
+    const session = digest(bearer || /(?:^|; *)vp_session=([a-f0-9]{64})(?:;|$)/.exec(req.headers.cookie||'')?.[1] || '');
     const user=db.prepare('SELECT a.id,a.name,a.department,a.role,d.name AS unit FROM sessions s JOIN accounts a ON a.id=s.account JOIN departments d ON d.id=a.department WHERE s.token=? AND s.expires>?').get(session,Date.now());
     if(req.method==='GET' && route==='/api/session') return send(200,{user:user||null});
     let input={};
     if(req.method==='POST'){
-      if(req.headers.origin!==origin || req.headers['content-type']!=='application/json') fail(403,'Запрос отклонён.');
+      if((req.headers.origin!==origin && !pagesRequest) || req.headers['content-type']!=='application/json') fail(403,'Запрос отклонён.');
       let chunks=[],size=0;
       for await(const part of req){size+=part.length;if(size>65536)fail(413,'Слишком большой документ.');chunks.push(part);}
       try {input=JSON.parse(Buffer.concat(chunks).toString());} catch {fail(400,'Некорректный запрос.');}
@@ -102,6 +113,7 @@ const server = http.createServer(async (req,res) => {
       }
       const secret=token();
       db.prepare('INSERT INTO sessions VALUES (?,?,?)').run(digest(secret),id,Date.now()+28800000);
+      if(pagesRequest)return send(200,{ok:true,sessionToken:secret});
       cookie(secret,28800);return send(200,{ok:true});
     }
     if(route==='/api/units' && req.method==='GET')return send(200,db.prepare('SELECT id,name FROM departments ORDER BY name').all());
@@ -132,4 +144,4 @@ const server = http.createServer(async (req,res) => {
     send(404,{});
   } catch(e){const known=Number.isInteger(e.code);send(known?e.code:500,{error:known?e.message:'Ошибка сервера.'});}
 });
-server.listen(port,'127.0.0.1',()=>console.log('Portal listening on '+port));
+server.listen(port,process.env.PORTAL_BIND || '127.0.0.1',()=>console.log('Portal listening on '+port));

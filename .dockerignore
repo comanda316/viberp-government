@@ -1,0 +1,6 @@
+**
+!backend/
+!backend/server.mjs
+!docs/
+!docs/**
+!Dockerfile
