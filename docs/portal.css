@@ -1,3 +1,55 @@
-*{box-sizing:border-box}body{margin:0;background:#f7f5ee;color:#193331;font:17px/1.6 system-ui}header,footer{background:#133934;color:white;padding:18px 6%;display:flex;flex-wrap:wrap;justify-content:space-between}header a{color:white}main{max-width:1100px;padding:26px 5%;margin:auto}.hero{border-bottom:4px solid #b38b47;padding:36px 0}.hero small{letter-spacing:.18em}h1,h2{font-family:Georgia,serif;line-height:1.12}h1{font-size:clamp(54px,8vw,92px);margin:.2em 0}section{margin:50px 0}input,select{font:inherit;padding:10px;max-width:100%}input{display:block;width:100%;margin:8px 0}a{color:#195e50;text-underline-offset:3px}li,details{background:white;padding:16px;border-bottom:1px solid #d1d8ce}ul{padding:0;list-style:none}small{display:block;color:#576b61}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(260px,100%),1fr));gap:10px}summary{cursor:pointer;font-weight:bold}article{max-width:78ch}article p{white-space:pre-wrap;overflow-wrap:anywhere}article :target{background:#fff1b7}nav{margin-bottom:8px}
-:root{color-scheme:light}body{font-family:"Segoe UI",system-ui,sans-serif;background:#f5f3eb}header{align-items:center;letter-spacing:.05em;border-bottom:3px solid #c4a15c}header nav{margin:0;font-size:.9rem;letter-spacing:normal}header a{text-decoration:none}header a:hover{text-decoration:underline}.hero{background:#173e38;color:#fff9e9;padding:clamp(24px,5vw,70px);border-bottom:5px solid #c4a15c}.hero small,.hero a{color:#e4c986}.hero h1{max-width:18ch}h2{font-size:clamp(30px,4vw,48px)}input,select,textarea{border:1px solid #9cafa5;border-radius:3px;background:#fff;color:#193331}textarea{width:100%;font:inherit;padding:12px;display:block}form{max-width:760px;margin:30px 0}form label{display:block;margin:18px 0;font-weight:600}button{background:#15473d;color:white;border:0;padding:12px 20px;border-radius:3px;cursor:pointer;font:inherit}#laws li{border-left:3px solid #c8b37d;margin-bottom:4px}a:focus-visible,button:focus-visible{outline:3px solid #b38330;outline-offset:3px}@media(max-width:620px){header nav{display:flex;flex-wrap:wrap;gap:8px 12px}.hero h1{font-size:42px}main{padding:16px 4%}}
-.destinations{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px}.destinations a{display:block;background:white;padding:24px;text-decoration:none;border-top:3px solid #ad8b49}.destinations a:hover{background:#ebefe8}.destinations h2{font-size:30px;margin:0}.destinations p{color:#344c45;margin-bottom:0}.page-title{font-size:clamp(38px,6vw,66px)}
+:root {
+  --ink: #141719;
+  --paper: #faf9f6;
+  --red: #a52533;
+  --line: #c9c9c4;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+body { margin: 0; color: var(--ink); background: var(--paper); font: 17px/1.65 "Segoe UI", Arial, sans-serif; }
+header, footer { background: var(--ink); color: white; padding: 22px max(5vw, calc((100vw - 1240px)/2)); }
+header { display: flex; justify-content: space-between; align-items: center; gap: 18px; flex-wrap: wrap; border-bottom: 1px solid #58595b; }
+header > a { font-weight: 800; letter-spacing: .07em; }
+header a { color: inherit; text-decoration: none; }
+header nav { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 15px; }
+a { color: inherit; text-underline-offset: .2em; }
+a:hover { text-decoration: underline; text-decoration-color: #c4414c; }
+main { width: min(90%, 1240px); margin: auto; padding: 44px 0 72px; }
+h1, h2 { font-family: Georgia, "Times New Roman", serif; line-height: 1.08; font-weight: 500; }
+h1, .page-title { font-size: clamp(36px, 6vw, 78px); letter-spacing: -.045em; overflow-wrap: anywhere; }
+h2 { font-size: clamp(25px, 3vw, 38px); }
+.home main { padding-top: 0; }
+.home .hero { position: relative; isolation: isolate; overflow: hidden; background: #171a1d; color: white; padding: clamp(38px, 6vw, 86px) 5vw; margin-inline: calc((100% - 100vw)/2); }
+.hero-inner { max-width: 1240px; margin: auto; }
+.hero small { font-size: 12px; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.home h1 { margin: .24em 0 .38em; font-size: clamp(55px, 8vw, 112px); line-height: .94; }
+.hero-link { display: inline-block; border-bottom: 3px solid #d0525d; padding-bottom: 5px; color: white; text-decoration: none; font-weight: 600; }
+.hero-link::after { content: '  ↗'; }
+.facade { position: absolute; z-index: -1; right: -3%; top: 0; height: 100%; width: 48%; background: repeating-linear-gradient(90deg,#363a3c 0 1.8%,#666a6b 2%,#333638 2.4%,#1d2022 3.4%,#525657 4%,#34383a 4.5%,#232628 5%), #303438; clip-path: polygon(9% 29%, 100% 0, 100% 100%, 0 100%); transform: skewX(-9deg); }
+.facade::before { content: ''; position: absolute; inset: 0; background: linear-gradient(162deg,transparent 0 22%,#939492 22.2%,#292c2e 24%,#767978 25%,#232628 26%,transparent 27%),linear-gradient(110deg,#15181bb3,transparent 70%); }
+.destinations, .grid { display: grid; grid-template-columns: repeat(auto-fit,minmax(min(100%,250px),1fr)); gap: 22px; margin: 38px 0; }
+.destinations a { display: block; position: relative; padding: 20px 30px 22px 0; border-top: 3px solid var(--ink); text-decoration: none; }
+.destinations a:hover { border-color: var(--red); }
+.destinations a::after { content: '↗'; position: absolute; right: 2px; top: 20px; color: var(--red); }
+.destinations h2 { margin: 0; font-size: clamp(26px, 2.5vw, 37px); }
+.destinations p { margin: 12px 0 0; color: #494e51; }
+footer { font-size: 14px; }
+ul { padding: 0; list-style: none; }
+#laws li, details { border-top: 1px solid var(--line); padding: 16px 0; }
+small { display: block; }
+summary, button { cursor: pointer; font-weight: 650; }
+input, select, textarea, button { font: inherit; max-width: 100%; padding: 10px 14px; border: 1px solid #62676a; border-radius: 0; }
+input, textarea { display: block; width: 100%; margin: 6px 0 16px; }
+button { background: var(--red); color: white; border-color: var(--red); }
+form, article { max-width: 76ch; }
+form label { display: block; margin: 14px 0; }
+article p { white-space: pre-wrap; overflow-wrap: anywhere; }
+article :target { background: #ffe7ac; }
+:focus-visible { outline: 3px solid #4781bc; outline-offset: 3px; }
+@media (max-width: 680px) {
+  header { padding-block: 15px; }
+  header nav { gap: 5px 12px; }
+  .facade { right: -18%; opacity: .5; }
+  main { padding-top: 24px; }
+  .destinations { gap: 4px; }
+}
