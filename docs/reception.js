@@ -1,0 +1,7 @@
+import {api} from './api.js';
+const apply=document.querySelector('#apply'),track=document.querySelector('#track'),receipt=document.querySelector('#receipt'),answer=document.querySelector('#answer');
+async function init(){try{const units=await api('units');for(const u of units)apply.elements.unit.add(new Option(u.name,u.id));}catch(e){document.querySelector('#serverStatus').textContent=e.message;for(const form of [apply,track])form.hidden=true;}}
+async function submit(e,out,task){e.preventDefault();const button=e.submitter;button.disabled=true;try{await task();}catch(err){out.textContent=err.message;}finally{button.disabled=false;}}
+apply.onsubmit=e=>submit(e,receipt,async()=>{const d=Object.fromEntries(new FormData(apply));d.unit=Number(d.unit);const r=await api('file',d);receipt.textContent='Дело №'+r.id+' зарегистрировано. Сохраните закрытый код доступа: '+r.key;track.elements.id.value=r.id;track.elements.key.value=r.key;apply.reset();});
+track.onsubmit=e=>submit(e,answer,async()=>{const r=await api('track',{id:Number(track.elements.id.value),key:track.elements.key.value.trim()});answer.textContent='#'+r.id+' · '+r.subject+' · '+r.unit+'\n'+(r.decision?'Решение: '+r.decision:'На рассмотрении');});
+init();
